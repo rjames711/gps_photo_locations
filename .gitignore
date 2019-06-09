@@ -2,3 +2,6 @@
 *.mp4
 *.html
 *.csv
+__pycache__
+*.p
+

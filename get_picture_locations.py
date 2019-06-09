@@ -59,7 +59,7 @@ def traverse():
         for name in files:
             ext = name.split('.')
             ext = ext[len(ext)-1]
-            if ext == 'jpg':
+            if ext == 'jpg' or ext =='mp4':
                 
                 pwd = root.split('/')
                 pwd = pwd[len(pwd)-1]
@@ -132,7 +132,7 @@ def writeFile(afile):
     ext = afile.split('.')
     ext = ext[len(ext)-1]
     if ext == 'mp4':
-        writeFile.html += '<video width="320" height="240" controls><source src="'+afile+'"type="video/mp4"></video>'
+        writeFile.html += '<video width="160" height="120" controls><source src="'+afile+'"type="video/mp4"></video>'
     else:
         exists = os.path.isfile(name)
         if not exists:
@@ -146,7 +146,7 @@ def writeFile(afile):
                 print('error writing thumbnail')
                 
         writeFile.html += '<a href="'+afile+'" >'
-        writeFile.html += '<img src="'+name+'" >'
+        writeFile.html += '<img src="'+name+'" width="160" height="120">'
         writeFile.html += '</a>'
     writeFile.csv += afile+'\n'
     if writeFile.fcount == 100 or afile=='last.out':#last.out is stupid hack to get it to force to write out any remaining

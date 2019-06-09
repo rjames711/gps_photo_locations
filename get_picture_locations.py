@@ -5,12 +5,13 @@ from GPSPhoto import gpsphoto
 import pyexifinfo as pe
 
 '''
-location = 'Newcastle'
-coordinates = (39.6737515,-75.5599767)
-'''
 
 location = 'boulderCo'
 coordinates = (40.0150, -105.2705)
+'''
+
+location = 'Newcastle'
+coordinates = (39.6737515,-75.5599767)
 withinKM = 100
 
 def get_photo_coords(photo):
@@ -53,7 +54,7 @@ paths = []
 
 
 def traverse():
-    for root, dirs, files in os.walk(".", topdown=False):
+    for root, dirs, files in os.walk("..", topdown=False):
         for name in files:
             ext = name.split('.')
             ext = ext[len(ext)-1]

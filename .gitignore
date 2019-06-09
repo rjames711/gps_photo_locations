@@ -4,4 +4,4 @@
 *.csv
 __pycache__
 *.p
-
+*.txt

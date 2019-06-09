@@ -6,13 +6,14 @@ import pyexifinfo as pe
 import pickle
 '''
 
-location = 'boulderCo'
-coordinates = (40.0150, -105.2705)
-'''
 
-location = 'Newcastle'
-coordinates = (39.6737515,-75.5599767)
-withinKM = 100
+location,coordinates, withinKM= '400Anchormill', (39.6737515,-75.5599767),2
+
+location,coordinates, withinKM = 'boulderCo',(40.0150, -105.2705),200
+location,coordinates, withinKM='Florida',(26.7153, -80.0534),200
+
+'''
+location,coordinates, withinKM = 'williampenn', (39.6721327,-75.5896958),2
 
 def get_photo_coords(photo):
     data = gpsphoto.getGPSData(photo)
@@ -38,14 +39,14 @@ def getFileCoord(afile):
 
 def convertGPStoFloat(coord):
     coord = coord.split(' ')
-    print(coord)
+    #print(coord)
     deg = int(coord[0])
-    print(coord)
+    #print(coord)
     minute = coord[2]
-    print(minute)
+    #print(minute)
     minute = int(minute[0:len(minute)-1])
     sec = float(coord[3][0:5])
-    print(deg,minute,sec)
+    #print(deg,minute,sec)
     DD = deg+(minute/60)+(sec/3600)
     return DD
 
@@ -59,6 +60,12 @@ def traverse():
             ext = name.split('.')
             ext = ext[len(ext)-1]
             if ext == 'jpg':
+                
+                pwd = root.split('/')
+                pwd = pwd[len(pwd)-1]
+                if pwd == 'thumbnails':
+                    continue
+                #print('root:',root)
                 relpath = os.path.join(root, name)
                 paths.append(relpath)
                 # paths.append(os.path.abspath(relpath))
@@ -76,9 +83,13 @@ def getWorkPicture():
     clearFiles()
     i=0
     for afile in paths:
+        print(afile)
         i+=1
         if afile in file_coords:
             coord = file_coords[afile]
+            if coord == 'error':
+                print('no gps')
+                continue
             if get_distance(coord, coordinates) < withinKM:
                 writeFile(afile)
         else:
@@ -92,8 +103,15 @@ def getWorkPicture():
                 if get_distance(coord, coordinates) < withinKM:
                     writeFile(afile)
             except:
+                print('error reading gps')
+                file_coords[afile] = 'error'
                 continue
     pickle.dump(file_coords, open("coords.p","wb"))
+    from pprint import pprint
+    f=open('dump.txt','w')
+    pprint(file_coords, stream=f)
+    f.close()
+    writeFile('last.out')
 
 def clearFiles():
     f = open(location+str(withinKM)+'.csv', 'w')
@@ -101,32 +119,61 @@ def clearFiles():
     f.close()
     h.close()
 
+html = ''
+csv = ''
+fcount=0
 def writeFile(afile):
+    print(writeFile.fcount)
+    writeFile.fcount+=1
     name = afile.split('/')
     name = name[len(name)-1]
     name = './thumbnails/'+name
-    f = open(location+'-'+str(withinKM)+'km.csv', 'a')
-    h = open(location+'-'+str(withinKM)+'km.html', 'a')
+
     ext = afile.split('.')
     ext = ext[len(ext)-1]
     if ext == 'mp4':
-        html = '<video width="320" height="240" controls><source src="'+afile+'"type="video/mp4"></video>'
+        writeFile.html += '<video width="320" height="240" controls><source src="'+afile+'"type="video/mp4"></video>'
     else:
-        
-        im = Image.open(afile)
-        size = 128, 128
-        im.thumbnail(size)
-        im.save(name)
-        html = '<a href="'+afile+'" >'
-        html += '<img src="'+name+'" >'
-        html += '</a>'
-    afile += '\n'
-    f.write(afile)
-    h.write(html)
-    h.close()
-    f.close()
-    closepaths.append(afile)
+        exists = os.path.isfile(name)
+        if not exists:
+            try:
+                print('writing thumbnail')
+                im = Image.open(afile)
+                size = 128, 128
+                im.thumbnail(size)
+                im.save(name)
+            except:
+                print('error writing thumbnail')
+                
+        writeFile.html += '<a href="'+afile+'" >'
+        writeFile.html += '<img src="'+name+'" >'
+        writeFile.html += '</a>'
+    writeFile.csv += afile+'\n'
+    if writeFile.fcount == 100 or afile=='last.out':#last.out is stupid hack to get it to force to write out any remaining
+        outf = location+'-'+str(withinKM)+'km.csv'
+        outh = location+'-'+str(withinKM)+'km.html'
+        #f = open('outf.csv', 'a')
+        #h = open('outh.html', 'a')
+        f = open(outf, 'a')
+        h = open(outh, 'a')
+        t = open('test.txt', 'a')
 
+        t.write('test')
+        f.write(writeFile.csv)
+        h.write(writeFile.html)
+        h.close()
+        f.close()
+        t.close()
+        print('writing files', outf, outh)
+        print(writeFile.html)
+        writeFile.fcount = 0
+        writeFile.html = ''
+        writeFile.csv = ''
+        
+    closepaths.append(afile)
+writeFile.fcount=0
+writeFile.html = ''
+writeFile.csv = ''
 
 if __name__=="__main__":
     getWorkPicture()

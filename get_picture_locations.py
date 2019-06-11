@@ -5,15 +5,14 @@ from GPSPhoto import gpsphoto
 import pyexifinfo as pe
 import pickle
 '''
-
-
-location,coordinates, withinKM= '400Anchormill', (39.6737515,-75.5599767),2
-
 location,coordinates, withinKM = 'boulderCo',(40.0150, -105.2705),200
 location,coordinates, withinKM='Florida',(26.7153, -80.0534),200
-
+location,coordinates, withinKM = 'williampenn', (39.6721327,-75.5896958),1
+location,coordinates, withinKM= '400Anchormill', (39.6737515,-75.5599767),2
+location,coordinates, withinKM= 'concordville', (39.8900351,-75.527584),2
 '''
-location,coordinates, withinKM = 'williampenn', (39.6721327,-75.5896958),2
+
+location,coordinates, withinKM='ardende',(39.8105697,-75.4968022),2
 
 def get_photo_coords(photo):
     data = gpsphoto.getGPSData(photo)
